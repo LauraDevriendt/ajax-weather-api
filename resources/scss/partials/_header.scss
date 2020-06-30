@@ -153,6 +153,12 @@ header{
     top: 10px;
   }
 
+.result-container{
+  span{
+    color: #fff;
+  }
+}
+
   @media screen and (max-width: 992px) {
     h1 {
       font-size: 1.5rem;

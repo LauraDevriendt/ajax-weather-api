@@ -1,3 +1,4 @@
+
 #weatherData{
 
   margin: 0.5rem auto;
@@ -11,14 +12,7 @@ padding: 0.5rem;
   display: none;
   animation: fadein 2s;
 
-  @keyframes fadein {
-    from{
-      opacity: 0;
-    }
-    to{
-      opacity: 1;
-    }
-  }
+
 
   h2{
     font-family: 'Notable', sans-serif;
@@ -84,6 +78,7 @@ padding: 0.5rem;
   background-color: rgba(159, 181, 117, 0.4);
   border: 3px solid transparent;
   border-radius: 2rem;
+  animation: fadein 2s;
   display: none;
 
 }
@@ -92,3 +87,11 @@ padding: 0.5rem;
   padding: 0.5rem;
 }
 
+@keyframes fadein {
+  from{
+    opacity: 0;
+  }
+  to{
+    opacity: 1;
+  }
+}

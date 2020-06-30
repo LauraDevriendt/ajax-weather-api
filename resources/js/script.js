@@ -1,9 +1,27 @@
+/***** GEOLOCATION *****/
+if('geolocation' in navigator){
+
+    navigator.geolocation.getCurrentPosition((position) =>{
+        let lat = position.coords.latitude
+        let lon= position.coords.longitude
+        fetch(`https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=bdb1c5c0cd0402c22d5535153d2a00e5`)
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('country').value=data.name
+            })
+    })
+
+}else{
+    console.log('geolocation not available')
+}
+
 
 /****** COUNTRY/CITY JS  ******/
 document.getElementById('lookUpForm').addEventListener('submit', function (e) {
 
     /* prevent form of refreshing */
     e.preventDefault()
+    document.getElementById('chartContainer').style.display = "none";
 
 
     /* objects to preserve data per day */
@@ -67,7 +85,9 @@ document.getElementById('lookUpForm').addEventListener('submit', function (e) {
                     if (date.dt_txt.includes(`${forecast}`)) {
 
                         /* chart labels */
-                        let time = date.dt_txt.split(" ").slice(1)
+                        let completeTime = date.dt_txt.split(" ").slice(1)
+                        completeTime = completeTime.toString().split(':')
+                        let time= completeTime[0]+"h"+completeTime[1]
                         labelsTemp[`${i}`].push(time)
 
                         /* date */
@@ -100,7 +120,12 @@ document.getElementById('lookUpForm').addEventListener('submit', function (e) {
                         .then(response => response.json())
                         .then(data => {
                         document.getElementById('cityImg').setAttribute('src', `${data.urls.thumb}`)
-                    });
+                    })
+                        .catch( () => {
+                        document.getElementById('cityImg').setAttribute('src', 'resources/img/weather.png')
+                            document.getElementById('cityImg').style.cssText='width:200px;'
+                        })
+
 
                     /* get pressure */
                     let pressures = [];
@@ -125,22 +150,29 @@ document.getElementById('lookUpForm').addEventListener('submit', function (e) {
             });
 
         })
+        .catch( () => {
+            document.getElementById('country').value="";
+
+            alert('something went wrong, try to fill in your city/country again')
+
+        })
 
     /* show charts on click */
     document.getElementById('weatherData').style.display = "block"
     let days = Array.from(document.getElementsByClassName('day'))
     days.forEach((day, i) => {
         let weekday="";
+
         day.addEventListener('click', function () {
-            chart("");
+
             weekday = day.children[0].innerText
 
             if(i==0){
                 weekday = day.children[1].children[0].children[0].innerText
-                console.log(weekday)
+
             }
-            console.log(weekday)
-            chart(labelsTemp[i], temperature[i], "temperature (°C)",weekday)
+
+            chart(labelsTemp[i], temperature[i], "Time","temperature (°C)",weekday)
             document.getElementById('chartContainer').style.display = "block";
         });
     })
@@ -192,14 +224,15 @@ document.getElementById('lookUpForm').addEventListener('submit', function (e) {
 
     }
     /* Creating Chart */
-    function chart(labelsArr, valuesArr, title,weekday) {
-        let tempChart = document.getElementById("tempChart").getContext("2d");
+    function chart(labelsArr, valuesArr, xAxesLabel,yAxesLabel,weekday) {
+        let tempChart = document.getElementById("tempChart").innerText=""
+        console.log(tempChart)
+        tempChart = document.getElementById("tempChart").getContext("2d");
 
         // global chart options
         Chart.defaults.global.defaultFontFamily = "roboto";
         Chart.defaults.global.defaultFontSize = 18;
         Chart.defaults.global.defaultFontColor = "#fff";
-        Chart.defaults.global.defaultPadding = "100";
 
         // the chart
         let statChart = new Chart(tempChart, {
@@ -208,7 +241,7 @@ document.getElementById('lookUpForm').addEventListener('submit', function (e) {
                 labels: labelsArr,
                 datasets: [
                     {
-                        label: title,
+                        label:"",
                         data: valuesArr,
                         borderWidth: 1,
                         borderColor: "#fff",
@@ -227,9 +260,17 @@ document.getElementById('lookUpForm').addEventListener('submit', function (e) {
             },
             options: {
                 scales: {
-
+                    xAxes: [{
+                        scaleLabel: {
+                            display: true,
+                            labelString: xAxesLabel
+                        },
+                    }],
                     yAxes: [{
-
+                        scaleLabel: {
+                            display: true,
+                            labelString: yAxesLabel
+                        },
                         ticks: {
                             beginAtZero: false,
 
@@ -301,6 +342,7 @@ function submitFn(obj, evt) {
 
     if (!value.length) {
         _html = "Add a country or city friend :D";
+        document.getElementById('weatherData').style.display = "none"
     } else {
 
         _html = "";
