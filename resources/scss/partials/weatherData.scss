@@ -1,0 +1,94 @@
+#weatherData{
+
+  margin: 0.5rem auto;
+  max-height:700px ;
+  max-width: 700px;
+padding: 0.5rem;
+  background-color:rgba(47, 36, 67,0.75) ;
+  border: 1px solid rgba(47, 36, 67,0.75);
+  color:#fff;
+  border-radius: 2rem;
+  display: none;
+  animation: fadein 2s;
+
+  @keyframes fadein {
+    from{
+      opacity: 0;
+    }
+    to{
+      opacity: 1;
+    }
+  }
+
+  h2{
+    font-family: 'Notable', sans-serif;
+    color: #fff;
+  }
+
+  .row{
+    width: 100%;
+    margin: 0;
+
+    .day{
+
+
+    }
+
+  }
+}
+.day{
+  margin-bottom: 1rem;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  &:hover{
+    animation: fadein 0.4s ease;
+    border: 3px solid rgb(245, 184, 103);
+    border-radius: 2rem;
+    cursor: pointer;
+  }
+
+}
+
+.dayOfWeek{
+  font-weight: 900;
+  text-transform: capitalize;
+}
+
+
+
+.today{
+  margin-top: 3rem;
+  margin-bottom: 3rem;
+  line-height: 0rem;
+
+  #cityImg{
+    margin-right: 3rem;
+    border-radius: 2rem;
+    object-fit: contain;
+    position: center;
+    animation: fadein 0.4s ease;
+  }
+  .day{
+    flex-direction: row;
+    justify-content: center;
+  }
+}
+
+#chartContainer{
+  margin: 0.5rem auto;
+  max-height: 600px;
+  padding: 0.5rem;
+  background-color: rgba(159, 181, 117, 0.4);
+  border: 3px solid transparent;
+  border-radius: 2rem;
+  display: none;
+
+}
+
+#tempChart{
+  padding: 0.5rem;
+}
+
