@@ -1,7 +1,7 @@
 /***** GEOLOCATION *****/
 if('geolocation' in navigator){
     navigator.geolocation.getCurrentPosition((position) =>{
-        fetch(`https://api.openweathermap.org/data/2.5/weather?lat=${position.coords.latitude}&lon=${position.coords.longitude}&appid=bdb1c5c0cd0402c22d5535153d2a00e5`)
+        fetch(`https://api.openweathermap.org/data/2.5/weather?lat=${position.coords.latitude}&lon=${position.coords.longitude}&appid=${KEY}`)
             .then(response => response.json())
             .then(data => {
                 document.getElementById('country').value=data.name
@@ -17,41 +17,23 @@ document.getElementById('lookUpForm').addEventListener('submit', function (e) {
     e.preventDefault()
     document.getElementById('chartContainer').style.display = "none";
 
+    const MAX_DAYS = 6;
 
     /* objects to preserve data per day */
-    const temperature = {
-        0: [],
-        1: [],
-        2: [],
-        3: [],
-        4: [],
-        5: [],
+    let temperature = [];
+    let weatherIcons = [];
+    let labelsTemp = [];
 
+    for (let i = 0; i < MAX_DAYS; i++) {
+        temperature.push([]);
+        weatherIcons.push([]);
+        labelsTemp.push([]);
     }
-    const weatherIcons = {
-        0: [],
-        1: [],
-        2: [],
-        3: [],
-        4: [],
-        5: [],
-
-    }
-    const labelsTemp = {
-        0: [],
-        1: [],
-        2: [],
-        3: [],
-        4: [],
-        5: [],
-
-    }
-
 
     /* Retrieving the forecast period */
     const weekdays = ["sun", "mon", "tue", "wed", "thur", "fri", "sat"]
     const today = new Date()
-    let forecastPeriod = 5
+    let forecastPeriod = MAX_DAYS - 1;
     let forecasts = [formatDate(today)]
     for (let i = 1; i <= forecastPeriod; i++) {
         forecasts.push(formatDate(new Date(today.getFullYear(), today.getMonth(), today.getDate() + i)))
@@ -59,19 +41,39 @@ document.getElementById('lookUpForm').addEventListener('submit', function (e) {
 
 
     /* get input */
-    let countryInput = document.getElementById('country').value.charAt(0).toUpperCase() + document.getElementById('country').value.toLowerCase().slice(1)
+    const countryInput = document.getElementById('country').value.charAt(0).toUpperCase() + document.getElementById('country').value.toLowerCase().slice(1)
+
+    function calculatePressure(pressures, date) {
+        pressures.push(date.main.pressure)
+        document.querySelector('.pressure').innerText = `Pressure: ${avg(pressures)} mb`
+    }
+
+    function calculateWindspeed(windspeeds, date) {
+        windspeeds.push(date.wind.speed)
+        let windspeedAvg = avg(windspeeds)
+        document.querySelector('.windspeed').innerText = `Wind: ${windspeedAvg} kmph`
+    }
+
+    function calculateHumidity(humidity, date) {
+        humidity.push(date.main.humidity)
+        let humidityAvg = avg(humidity)
+        document.querySelector('.humidity').innerText = `Humidity: ${humidityAvg} %`
+    }
 
     /* fetch weather data */
-    fetch(`https://api.openweathermap.org/data/2.5/forecast?q=${countryInput}&units=metric&appid=bdb1c5c0cd0402c22d5535153d2a00e5`)
+    fetch(`https://api.openweathermap.org/data/2.5/forecast?q=${countryInput}&units=metric&appid=${KEY}`)
         .then(response => response.json())
         .then(city => {
 
             /* fetch and display name city/country */
-            document.getElementById('cityCountry').innerText = city.city.name
+            document.getElementById('cityCountry').innerText = city.city.name;
+
+            let pressures = [];
+            let windspeeds = [];
+            let humidity = [];
 
             /* fetch data forecast period */
-            let dateData = city.list
-            dateData.forEach(date => {
+            city.list.forEach(date => {
 
                 /* data for whole period */
                 forecasts.forEach((forecast, i) => {
@@ -81,12 +83,11 @@ document.getElementById('lookUpForm').addEventListener('submit', function (e) {
                         /* chart labels */
                         let completeTime = date.dt_txt.split(" ").slice(1)
                         completeTime = completeTime.toString().split(':')
-                        let time= completeTime[0]+"h"+completeTime[1]
-                        labelsTemp[`${i}`].push(time)
+                        labelsTemp[`${i}`].push(completeTime[0] + "h" + completeTime[1])
 
                         /* date */
-                        let d = new Date((forecast));
-                        d = weekdays[d.getDay()];
+                        let d = (new Date(forecast)).getDay();
+                        d = weekdays[d];
                         document.getElementsByClassName('dayOfWeek')[i].innerText = `${d}`
 
                         /* temp */
@@ -99,45 +100,26 @@ document.getElementById('lookUpForm').addEventListener('submit', function (e) {
                         let icon = getOccurrence(weatherIcons[`${i}`])
                         document.getElementsByClassName('weatherIcon')[i].setAttribute('src', `http://openweathermap.org/img/w/${icon}.png`)
                         document.getElementsByClassName('weatherIcon')[i].setAttribute('alt', `weatherIcon`)
-
-
                     }
-
-
                 });
 
                 /* data for only today */
                 if (date.dt_txt.includes(`${forecasts[0]}`)) {
 
                     /* random country/city image unsplash api */
-                    fetch(`https://api.unsplash.com/photos/random?query=${countryInput}&client_id=VygnjCLX2COnnK-wMIGIlxO91a6CyM7C_2WeL9fPqc0`)
+                    fetch(`https://api.unsplash.com/photos/random?query=${countryInput}&client_id=${UNSPLASH_SECRET}`)
                         .then(response => response.json())
                         .then(data => {
                         document.getElementById('cityImg').setAttribute('src', `${data.urls.thumb}`)
                     })
                         .catch( () => {
-                        document.getElementById('cityImg').setAttribute('src', 'resources/img/weather.png')
+                            document.getElementById('cityImg').setAttribute('src', 'resources/img/weather.png')
                             document.getElementById('cityImg').style.cssText='width:200px;'
                         })
 
-
-                    /* get pressure */
-                    let pressures = [];
-                    pressures.push(date.main.pressure)
-                    let pressureAvg = avg(pressures)
-                    document.querySelector('.pressure').innerText = `Pressure: ${pressureAvg} mb`
-
-                    /* get windspeed */
-                    let windspeeds = [];
-                    windspeeds.push(date.wind.speed)
-                    let windspeedAvg = avg(windspeeds)
-                    document.querySelector('.windspeed').innerText = `Wind: ${windspeedAvg} kmph`
-
-                    /* get humidity */
-                    let humidity = [];
-                    humidity.push(date.main.humidity)
-                    let humidityAvg = avg(humidity)
-                    document.querySelector('.humidity').innerText = `Humidity: ${humidityAvg} %`
+                    calculatePressure(pressures, date);
+                    calculateWindspeed(windspeeds, date);
+                    calculateHumidity(humidity, date);
                 }
 
 
@@ -161,9 +143,9 @@ document.getElementById('lookUpForm').addEventListener('submit', function (e) {
 
             weekday = day.children[0].innerText
 
-            if(i==0){
-                weekday = day.children[1].children[0].children[0].innerText
-
+            if(i===0){
+                //@todo refactor so it uses the html class
+                weekday = day.children[1].children[0].children[0].innerText;
             }
 
             chart(labelsTemp[i], temperature[i], "Time","temperature (°C)",weekday)
@@ -181,7 +163,7 @@ document.getElementById('lookUpForm').addEventListener('submit', function (e) {
            year = d.getFullYear();
 
        if (month.length < 2)
-           month = '0' + month;
+           month = '0' + month;//@todo use .padStart()
        if (day.length < 2)
            day = '0' + day;
 
