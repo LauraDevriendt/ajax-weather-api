@@ -4,7 +4,7 @@ if('geolocation' in navigator){
         fetch(`https://api.openweathermap.org/data/2.5/weather?lat=${position.coords.latitude}&lon=${position.coords.longitude}&appid=${KEY}`)
             .then(response => response.json())
             .then(data => {
-                document.getElementById('country').value=data.name
+                document.getElementById('country').value=data.name;
             })
     })
 }
@@ -14,7 +14,7 @@ if('geolocation' in navigator){
 document.getElementById('lookUpForm').addEventListener('submit', function (e) {
 
     /* prevent form of refreshing */
-    e.preventDefault()
+    e.preventDefault();
     document.getElementById('chartContainer').style.display = "none";
 
     const MAX_DAYS = 6;
@@ -28,37 +28,22 @@ document.getElementById('lookUpForm').addEventListener('submit', function (e) {
         temperature.push([]);
         weatherIcons.push([]);
         labelsTemp.push([]);
-    }
+    };
 
     /* Retrieving the forecast period */
-    const weekdays = ["sun", "mon", "tue", "wed", "thur", "fri", "sat"]
-    const today = new Date()
+    const weekdays = ["sun", "mon", "tue", "wed", "thur", "fri", "sat"];
+    const today = new Date();
     let forecastPeriod = MAX_DAYS - 1;
-    let forecasts = [formatDate(today)]
+    let forecasts = [formatDate(today)];
     for (let i = 1; i <= forecastPeriod; i++) {
-        forecasts.push(formatDate(new Date(today.getFullYear(), today.getMonth(), today.getDate() + i)))
-    }
+        forecasts.push(formatDate(new Date(today.getFullYear(), today.getMonth(), today.getDate() + i)));
+    };
 
 
     /* get input */
-    const countryInput = document.getElementById('country').value.charAt(0).toUpperCase() + document.getElementById('country').value.toLowerCase().slice(1)
+    const countryInput = document.getElementById('country').value.charAt(0).toUpperCase() + document.getElementById('country').value.toLowerCase().slice(1);
 
-    function calculatePressure(pressures, date) {
-        pressures.push(date.main.pressure)
-        document.querySelector('.pressure').innerText = `Pressure: ${avg(pressures)} mb`
-    }
 
-    function calculateWindspeed(windspeeds, date) {
-        windspeeds.push(date.wind.speed)
-        let windspeedAvg = avg(windspeeds)
-        document.querySelector('.windspeed').innerText = `Wind: ${windspeedAvg} kmph`
-    }
-
-    function calculateHumidity(humidity, date) {
-        humidity.push(date.main.humidity)
-        let humidityAvg = avg(humidity)
-        document.querySelector('.humidity').innerText = `Humidity: ${humidityAvg} %`
-    }
 
     /* fetch weather data */
     fetch(`https://api.openweathermap.org/data/2.5/forecast?q=${countryInput}&units=metric&appid=${KEY}`)
@@ -131,27 +116,38 @@ document.getElementById('lookUpForm').addEventListener('submit', function (e) {
 
             alert('something went wrong, try to fill in your city/country again')
 
-        })
+        });
+
+    /* assisting function for weather data */
+    function calculatePressure(pressures, date) {
+        pressures.push(date.main.pressure);
+        document.querySelector('.pressure').innerText = `Pressure: ${avg(pressures)} mb`;
+    };
+
+    function calculateWindspeed(windspeeds, date) {
+        windspeeds.push(date.wind.speed);
+        let windspeedAvg = avg(windspeeds);
+        document.querySelector('.windspeed').innerText = `Wind: ${windspeedAvg} kmph`;
+    };
+
+    function calculateHumidity(humidity, date) {
+        humidity.push(date.main.humidity);
+        let humidityAvg = avg(humidity);
+        document.querySelector('.humidity').innerText = `Humidity: ${humidityAvg} %`;
+    };
 
     /* show charts on click */
-    document.getElementById('weatherData').style.display = "block"
-    let days = Array.from(document.getElementsByClassName('day'))
+    document.getElementById('weatherData').style.display = "block";
+    let days = Array.from(document.getElementsByClassName('day'));
     days.forEach((day, i) => {
-        let weekday="";
-
         day.addEventListener('click', function () {
 
-            weekday = day.children[0].innerText
+           let weekday= document.getElementsByClassName('dayOfWeek')[i].innerText;
 
-            if(i===0){
-                //@todo refactor so it uses the html class
-                weekday = day.children[1].children[0].children[0].innerText;
-            }
-
-            chart(labelsTemp[i], temperature[i], "Time","temperature (°C)",weekday)
+            chart(labelsTemp[i], temperature[i], "Time","temperature (°C)",weekday);
             document.getElementById('chartContainer').style.display = "block";
         });
-    })
+    });
 
 
    /*** Assisting functions ***/
@@ -163,9 +159,9 @@ document.getElementById('lookUpForm').addEventListener('submit', function (e) {
            year = d.getFullYear();
 
        if (month.length < 2)
-           month = '0' + month;//@todo use .padStart()
+           month = month.padStart(2,"0");
        if (day.length < 2)
-           day = '0' + day;
+           day = day.padStart(2,"0");
 
        return [year, month, day].join('-');
    }
@@ -175,7 +171,7 @@ document.getElementById('lookUpForm').addEventListener('submit', function (e) {
         let averageTemp = Math.round(array.reduce(function (sum, value) {
             return sum + value;
         }, 0) / array.length);
-        return averageTemp
+        return averageTemp;
     }
     /* get icon which is used the most over the day */
     function getOccurrence(array) {
@@ -185,25 +181,23 @@ document.getElementById('lookUpForm').addEventListener('submit', function (e) {
             if (!iconObject.has(icon)) {
                 iconObject.set(icon, 0)
 
-            }
-            iconObject.set(icon, iconObject.get(icon) + 1)
+            };
+            iconObject.set(icon, iconObject.get(icon) + 1);
 
         });
 
         iconObject.forEach((quantity, key) => {
             if (quantity > iconObject.get(chosenIcon) || !iconObject.has(chosenIcon)) {
                 chosenIcon = key;
-            }
+            };
         });
 
-        return chosenIcon
+        return chosenIcon;
 
     }
     /* Creating Chart */
     function chart(labelsArr, valuesArr, xAxesLabel,yAxesLabel,weekday) {
 
-
-        console.log(tempChart)
         tempChart = document.getElementById("tempChart").getContext("2d");
 
         // global chart options
@@ -280,21 +274,21 @@ document.getElementById('lookUpForm').addEventListener('submit', function (e) {
                 //tooltips{}
             },
         });
-    }
+    };
 
 });
 
 
 /****** SEARCHBAR JS  ******/
 document.getElementById('lookUpForm').addEventListener('submit', function (evt) {
-    submitFn(this, evt)
-})
+    submitFn(this, evt);
+});
 document.getElementById('searchBtn').addEventListener('click', function (evt) {
-    searchToggle(this, evt)
+    searchToggle(this, evt);
 })
 document.getElementById('closeBtn').addEventListener('click', function (evt) {
-    searchToggle(this, evt)
-})
+    searchToggle(this, evt);
+});
 
 /*assisting functions */
 function searchToggle(obj, evt) {
