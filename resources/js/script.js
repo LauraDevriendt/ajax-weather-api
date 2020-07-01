@@ -1,18 +1,12 @@
 /***** GEOLOCATION *****/
 if('geolocation' in navigator){
-
     navigator.geolocation.getCurrentPosition((position) =>{
-        let lat = position.coords.latitude
-        let lon= position.coords.longitude
-        fetch(`https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=bdb1c5c0cd0402c22d5535153d2a00e5`)
+        fetch(`https://api.openweathermap.org/data/2.5/weather?lat=${position.coords.latitude}&lon=${position.coords.longitude}&appid=bdb1c5c0cd0402c22d5535153d2a00e5`)
             .then(response => response.json())
             .then(data => {
                 document.getElementById('country').value=data.name
             })
     })
-
-}else{
-    console.log('geolocation not available')
 }
 
 
@@ -225,7 +219,8 @@ document.getElementById('lookUpForm').addEventListener('submit', function (e) {
     }
     /* Creating Chart */
     function chart(labelsArr, valuesArr, xAxesLabel,yAxesLabel,weekday) {
-        let tempChart = document.getElementById("tempChart").innerText=""
+
+
         console.log(tempChart)
         tempChart = document.getElementById("tempChart").getContext("2d");
 
@@ -319,6 +314,7 @@ document.getElementById('closeBtn').addEventListener('click', function (evt) {
     searchToggle(this, evt)
 })
 
+/*assisting functions */
 function searchToggle(obj, evt) {
     var container = $(obj).closest('.search-wrapper');
 
